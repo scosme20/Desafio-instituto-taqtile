@@ -25,9 +25,17 @@ Scripts Disponíveis
 No projeto, você pode usar os seguintes scripts:
 
 npm start: Inicia o servidor de desenvolvimento.
+
+
 npm run build: Compila a aplicação para produção na pasta build.
+
+
 npm test: Executa os testes utilizando o Jest.
+
+
 npm run eject: Remove a ferramenta de build do Create React App, copiando todas as configurações e dependências para o projeto.
+
+
 Configuração do ESLint
 O projeto utiliza o ESLint com uma configuração baseada nas regras recomendadas para aplicações React, garantindo a qualidade do código e aderência às melhores práticas.
 
