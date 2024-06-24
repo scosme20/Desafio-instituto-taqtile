@@ -34,3 +34,5 @@ O projeto utiliza o ESLint com uma configuração baseada nas regras recomendada
 Compatibilidade com Browsers
 A configuração de compatibilidade com navegadores está definida para suportar uma ampla gama de navegadores modernos tanto em ambientes de produção quanto de desenvolvimento.
 
+Foi usado solid e design patterns
+Foi usado hooks para gerenciar estado e ciclo de vida dos componentes
