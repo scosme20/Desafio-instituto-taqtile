@@ -1,11 +1,12 @@
-import './App.css';
+import React from "react";
+import LoginPage from "./Pages/LoginPage";
 
-function App() {
+const App: React.FC = () => {
   return (
     <div className="App">
-      <h1>Hello World</h1>
+      <LoginPage />
     </div>
   );
-}
+};
 
 export default App;
