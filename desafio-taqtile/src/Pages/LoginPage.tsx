@@ -71,14 +71,16 @@ const LoginPage: React.FC = () => {
         if (data?.login?.token) {
           localStorage.setItem("token", data.login.token);
           console.log("Login successful");
+          console.log("Token:", data.login.token);
           navigate("/home");
         } else {
           console.error("Unexpected response structure", data);
+          setLoginError("Unexpected response structure");
         }
       } catch (error: any) {
         setLoading(false);
-        setLoginError(error.message || "An unexpected error occurred");
         console.error("Login error", error);
+        setLoginError(error.message || "An unexpected error occurred");
       }
     } else {
       console.log("Form has validation errors");
