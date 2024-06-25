@@ -1,63 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
+import { Link } from "react-router-dom";
 import { USERS_QUERY } from "../../Graphql/Queries/UserQuery";
 import client from "../../Graphql/Apollo/ApolloClient";
 
 const UserList: React.FC = () => {
+  const [offset, setOffset] = useState(0);
   const [users, setUsers] = useState<any[]>([]);
-  const [loadingMore, setLoadingMore] = useState(false);
-
   const { loading, error, data, fetchMore } = useQuery(USERS_QUERY, {
+    variables: { data: { offset, limit: 20 } },
     client,
-    onCompleted: (data) => {
-      setUsers(data.users.nodes);
-    },
   });
 
-  const loadMoreUsers = async () => {
-    setLoadingMore(true);
+  useEffect(() => {
+    if (data && data.users && data.users.nodes) {
+      setUsers(data.users.nodes);
+    }
+  }, [data]);
+
+  const handleLoadMore = async () => {
+    const newOffset = offset + 20;
+    setOffset(newOffset);
+
     try {
-      const { data } = await fetchMore({
-        variables: { offset: users.length },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return {
-            users: {
-              nodes: [...prev.users.nodes, ...fetchMoreResult.users.nodes],
-              pageInfo: fetchMoreResult.users.pageInfo,
-            },
-          };
+      const { data: moreData } = await fetchMore({
+        variables: {
+          data: {
+            offset: newOffset,
+            limit: 20,
+          },
         },
       });
-      setUsers((prevUsers) => [...prevUsers, ...data.users.nodes]);
-    } catch (fetchError) {
-      console.error("Error fetching more users:", fetchError);
+
+      if (moreData && moreData.users && moreData.users.nodes) {
+        setUsers((prevUsers) => [...prevUsers, ...moreData.users.nodes]);
+      }
+    } catch (error: unknown) {
+      console.error("Error fetching more users:", error);
+      alert("Failed to load more users. Please try again.");
     }
-    setLoadingMore(false);
   };
 
-  if (loading && !loadingMore) return <p>Loading...</p>;
+  if (loading && users.length === 0) return <p>Loading...</p>;
   if (error) {
     console.error("Error fetching users:", error);
-    return <p>Error: {error.message}</p>;
+    return <p>Error: {(error as Error).message}</p>;
   }
 
   return (
     <div>
       <h2>User List</h2>
       <ul>
-        {users.map((user) => (
+        {users.map((user: any) => (
           <li key={user.id}>
             <strong>Name:</strong> {user.name}, <strong>Email:</strong>{" "}
             {user.email}
           </li>
         ))}
       </ul>
-      {data.users.pageInfo.hasNextPage && (
-        <button onClick={loadMoreUsers} disabled={loadingMore}>
-          {loadingMore ? "Loading..." : "Load More"}
-        </button>
+      {data && data.users && data.users.pageInfo.hasNextPage && (
+        <button onClick={handleLoadMore}>Carregar mais</button>
       )}
+      <Link to="/add-user">
+        <button>Adicionar Usuário</button>
+      </Link>
     </div>
   );
 };
