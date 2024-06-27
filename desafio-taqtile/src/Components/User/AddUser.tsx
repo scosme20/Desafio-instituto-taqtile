@@ -1,110 +1,101 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
 import { CREATE_USER_MUTATION } from "../../Graphql/Mutations/AddMutation";
+import {
+  Form,
+  Input,
+  Label,
+  ErrorMessage,
+  Button,
+  Select,
+  ButtonWrapper,
+  Title,
+} from "../../Styles/AddUserStyle";
+import { useNavigate, Link } from "react-router-dom";
 
-const AddUser: React.FC = () => {
+const AddUserForm: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
-  const [cpf, setCpf] = useState("");
-  const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const [addUser] = useMutation(CREATE_USER_MUTATION);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (cpf.length !== 11) {
-      alert("CPF inválido. Deve conter exatamente 11 números.");
-      return;
-    }
-
+    setLoading(true);
+    const formattedBirthDate = new Date(birthDate).toISOString();
+    console.log("Submitting:", {
+      name,
+      email,
+      phone,
+      birthDate: formattedBirthDate,
+      password,
+      role,
+    });
     try {
-      await createUser({
+      await addUser({
         variables: {
           data: {
             name,
             email,
             phone,
-            birthDate,
+            birthDate: formattedBirthDate,
+            password,
             role,
-            password: "defaultPassword", // Just to pass the validation, handle this securely
           },
         },
       });
-      navigate("/user-list");
-    } catch (error: unknown) {
-      console.error("Error adding user:", error);
-      alert(`Error: ${(error as Error).message}`);
+      navigate("/home");
+    } catch (err: any) {
+      console.error("Error creating user:", err);
+      setError(err.message as string);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Adicionar Usuário</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Nome:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Telefone:
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Data de Nascimento:
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          CPF:
-          <input
-            type="text"
-            value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Role:
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-          >
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-        </label>
-        <button type="submit">Adicionar Usuário</button>
-      </form>
-    </div>
+    <Form onSubmit={handleSubmit}>
+      <Title>Adicionar Usuário</Title>
+      <Label>Nome</Label>
+      <Input value={name} onChange={(e) => setName(e.target.value)} />
+      <Label>Email</Label>
+      <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <Label>Telefone</Label>
+      <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <Label>Data de Nascimento</Label>
+      <Input
+        type="date"
+        value={birthDate}
+        onChange={(e) => setBirthDate(e.target.value)}
+      />
+      <Label>Senha</Label>
+      <Input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Label>Role</Label>
+      <Select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="user">User</option>
+        <option value="adm">Adm</option>
+      </Select>
+      {loading && <p>Carregando...</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <ButtonWrapper>
+        <Button type="submit">Adicionar Usuário</Button>
+        <Link to="/home">
+          <Button type="button">Voltar para Home</Button>
+        </Link>
+      </ButtonWrapper>
+    </Form>
   );
 };
 
-export default AddUser;
+export default AddUserForm;

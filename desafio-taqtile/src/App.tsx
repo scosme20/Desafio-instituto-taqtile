@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import UserList from "./Components/User/UserList";
 import AddUser from "./Components/User/AddUser";
+import UserDetails from "./Pages/UserDetails";
 import LoginPage from "./Pages/LoginPage";
 
 const App: React.FC = () => (
@@ -10,6 +11,7 @@ const App: React.FC = () => (
       <Route path="/" element={<LoginPage />} />
       <Route path="/home" element={<UserList />} />
       <Route path="/add-user" element={<AddUser />} />
+      <Route path="/user/:userId" element={<UserDetails />} />
     </Routes>
   </Router>
 );

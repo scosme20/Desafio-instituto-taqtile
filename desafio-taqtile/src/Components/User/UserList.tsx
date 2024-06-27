@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { USERS_QUERY } from "../../Graphql/Queries/UserQuery";
 import client from "../../Graphql/Apollo/ApolloClient";
+import UserListLogic from "../../utils/UserListLogic";
+import {
+  UserListContainer,
+  Title,
+  StyledUserList,
+  UserListItem,
+  Button,
+  ButtonWrapper,
+} from "../../Styles/UserListStyles";
 
 const UserList: React.FC = () => {
   const [offset, setOffset] = useState(0);
@@ -18,53 +27,44 @@ const UserList: React.FC = () => {
     }
   }, [data]);
 
-  const handleLoadMore = async () => {
-    const newOffset = offset + 20;
-    setOffset(newOffset);
+  const navigate = useNavigate();
 
-    try {
-      const { data: moreData } = await fetchMore({
-        variables: {
-          data: {
-            offset: newOffset,
-            limit: 20,
-          },
-        },
-      });
+  const { handleLoadMore } = UserListLogic(
+    offset,
+    setOffset,
+    fetchMore,
+    setUsers,
+  );
 
-      if (moreData && moreData.users && moreData.users.nodes) {
-        setUsers((prevUsers) => [...prevUsers, ...moreData.users.nodes]);
-      }
-    } catch (error: unknown) {
-      console.error("Error fetching more users:", error);
-      alert("Failed to load more users. Please try again.");
-    }
-  };
-
-  if (loading && users.length === 0) return <p>Loading...</p>;
+  if (loading && users.length === 0) return <p>Carregando...</p>;
   if (error) {
-    console.error("Error fetching users:", error);
-    return <p>Error: {(error as Error).message}</p>;
+    console.error("Erro ao buscar usuários:", error);
+    return <p>Erro: {(error as Error).message}</p>;
   }
 
   return (
-    <div>
-      <h2>User List</h2>
-      <ul>
+    <UserListContainer>
+      <Title>Lista de Usuários Tàqtile</Title>
+      <StyledUserList>
         {users.map((user: any) => (
-          <li key={user.id}>
-            <strong>Name:</strong> {user.name}, <strong>Email:</strong>{" "}
+          <UserListItem
+            key={user.id}
+            onClick={() => navigate(`/user/${user.id}`)}
+          >
+            <strong>Nome:</strong> {user.name}, <strong>Email:</strong>{" "}
             {user.email}
-          </li>
+          </UserListItem>
         ))}
-      </ul>
+      </StyledUserList>
       {data && data.users && data.users.pageInfo.hasNextPage && (
-        <button onClick={handleLoadMore}>Carregar mais</button>
+        <ButtonWrapper>
+          <Button onClick={handleLoadMore}>Carregar mais</Button>
+          <Link to="/add-user">
+            <Button>Adicionar Usuário</Button>
+          </Link>
+        </ButtonWrapper>
       )}
-      <Link to="/add-user">
-        <button>Adicionar Usuário</button>
-      </Link>
-    </div>
+    </UserListContainer>
   );
 };
 

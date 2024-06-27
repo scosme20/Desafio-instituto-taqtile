@@ -1,18 +1,24 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { ApolloProvider } from "@apollo/client";
 import App from "./App";
 import client from "./Graphql/Apollo/ApolloClient";
 import reportWebVitals from "./reportWebVitals";
 
-// eslint-disable-next-line react/no-deprecated
-ReactDOM.render(
+const container = document.getElementById("root");
+
+if (!container) {
+  throw new Error('Element with id "root" not found in the document.');
+}
+
+const root = createRoot(container);
+
+root.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
       <App />
     </ApolloProvider>
   </React.StrictMode>,
-  document.getElementById("root"),
 );
 
 reportWebVitals();
