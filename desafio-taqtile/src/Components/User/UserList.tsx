@@ -13,16 +13,41 @@ import {
   ButtonWrapper,
 } from "../../Styles/UserListStyles";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface UsersQueryData {
+  users: {
+    nodes: [];
+    pageInfo: {
+      hasNextPage: boolean;
+    };
+  };
+}
+
+interface UsersQueryVariables {
+  data: {
+    offset: number;
+    limit: number;
+  };
+}
+
 const UserList: React.FC = () => {
-  const [offset, setOffset] = useState(0);
-  const [users, setUsers] = useState<any[]>([]);
-  const { loading, error, data, fetchMore } = useQuery(USERS_QUERY, {
+  const [offset, setOffset] = useState<number>(0);
+  const [users, setUsers] = useState<User[]>([]);
+  const { loading, error, data, fetchMore } = useQuery<
+    UsersQueryData,
+    UsersQueryVariables
+  >(USERS_QUERY, {
     variables: { data: { offset, limit: 20 } },
     client,
   });
 
   useEffect(() => {
-    if (data && data.users && data.users.nodes) {
+    if (data?.users?.nodes) {
       setUsers(data.users.nodes);
     }
   }, [data]);
