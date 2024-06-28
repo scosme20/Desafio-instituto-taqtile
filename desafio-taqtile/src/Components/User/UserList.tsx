@@ -22,7 +22,7 @@ const UserList: React.FC = () => {
   });
 
   useEffect(() => {
-    if (data && data.users && data.users.nodes) {
+    if (data?.users?.nodes) {
       setUsers(data.users.nodes);
     }
   }, [data]);
