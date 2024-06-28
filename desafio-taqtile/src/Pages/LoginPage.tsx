@@ -1,10 +1,17 @@
 import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+import { LOGIN_MUTATION } from "../Graphql/Mutations/LoginMutations";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [login] = useMutation(LOGIN_MUTATION);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -28,11 +35,12 @@ const LoginPage: React.FC = () => {
     return hasDigit && hasLetter;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setEmailError("");
     setPasswordError("");
+    setLoginError(null);
 
     if (!email) {
       setEmailError("Email is required");
@@ -54,7 +62,24 @@ const LoginPage: React.FC = () => {
       validateEmail(email) &&
       validatePassword(password)
     ) {
-      console.log("Form submitted successfully");
+      setLoading(true);
+      try {
+        const { data } = await login({
+          variables: { data: { email, password } },
+        });
+        setLoading(false);
+        if (data?.login?.token) {
+          localStorage.setItem("token", data.login.token);
+          console.log("Login successful");
+          navigate("/home");
+        } else {
+          console.error("Unexpected response structure", data);
+        }
+      } catch (error: any) {
+        setLoading(false);
+        setLoginError(error.message || "An unexpected error occurred");
+        console.error("Login error", error);
+      }
     } else {
       console.log("Form has validation errors");
     }
@@ -62,6 +87,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div>
+      <h1>Bem vindo a Taqtile</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email</label>
@@ -73,7 +99,7 @@ const LoginPage: React.FC = () => {
             onChange={handleEmailChange}
             required
           />
-          {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+          {emailError && <p>{emailError}</p>}
         </div>
 
         <div>
@@ -86,10 +112,14 @@ const LoginPage: React.FC = () => {
             onChange={handlePasswordChange}
             required
           />
-          {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
+          {passwordError && <p>{passwordError}</p>}
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          Login
+        </button>
+        {loading && <p>Loading...</p>}
+        {loginError && <p>{loginError}</p>}
       </form>
     </div>
   );
