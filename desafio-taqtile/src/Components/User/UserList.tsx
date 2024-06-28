@@ -81,7 +81,7 @@ const UserList: React.FC = () => {
           </UserListItem>
         ))}
       </StyledUserList>
-      {data && data.users && data.users.pageInfo.hasNextPage && (
+      {data?.users?.pageInfo.hasNextPage && (
         <ButtonWrapper>
           <Button onClick={handleLoadMore}>Carregar mais</Button>
           <Link to="/add-user">
