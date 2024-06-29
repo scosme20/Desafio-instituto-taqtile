@@ -48,6 +48,10 @@ const UserList: React.FC = () => {
     return <p>Erro: {(error as Error).message}</p>;
   }
 
+  const handleNavigateToAddUser = () => {
+    navigate("/add-user");
+  };
+
   return (
     <div>
       <ul>
@@ -61,6 +65,7 @@ const UserList: React.FC = () => {
       {data?.users?.pageInfo.hasNextPage && (
         <button onClick={handleLoadMore}>Carregar mais</button>
       )}
+      <button onClick={handleNavigateToAddUser}>Adicionar Usuário</button>
     </div>
   );
 };
