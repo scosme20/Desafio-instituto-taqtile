@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { USERS_QUERY } from "../../GraphQl/Queries/UsersQuery";
 import client from "../../GraphQl/Apollo/ApolloClient";
 import UserListLogic from "../../Utils/UserListLogic";
+import { handleError } from "../../Utils/ErrorQueries";
 import {
   UserListContainer,
   Title,
@@ -21,7 +22,7 @@ interface User {
 
 interface UsersQueryData {
   users: {
-    nodes: [];
+    nodes: User[];
     pageInfo: {
       hasNextPage: boolean;
     };
@@ -63,15 +64,14 @@ const UserList: React.FC = () => {
 
   if (loading && users.length === 0) return <p>Carregando...</p>;
   if (error) {
-    console.error("Erro ao buscar usuários:", error);
-    return <p>Erro: {(error as Error).message}</p>;
+    return <p>Erro: {handleError(error)}</p>;
   }
 
   return (
     <UserListContainer>
       <Title>Lista de Usuários Tàqtile</Title>
       <StyledUserList>
-        {users.map((user: any) => (
+        {users.map((user: User) => (
           <UserListItem
             key={user.id}
             onClick={() => navigate(`/user/${user.id}`)}
