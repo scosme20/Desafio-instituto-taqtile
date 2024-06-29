@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, gql, ApolloError } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { client } from "../GraphQl/Apollo/ApolloClient";
 
@@ -18,13 +18,40 @@ const USERS_QUERY = gql`
   }
 `;
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface PageInfo {
+  hasNextPage: boolean;
+}
+
+interface UsersData {
+  users: {
+    nodes: User[];
+    pageInfo: PageInfo;
+  };
+}
+
+interface UsersVars {
+  data: {
+    offset: number;
+    limit: number;
+  };
+}
+
 const UserList: React.FC = () => {
   const [offset, setOffset] = useState<number>(0);
-  const [users, setUsers] = useState<any[]>([]);
-  const { loading, error, data, fetchMore } = useQuery(USERS_QUERY, {
-    variables: { data: { offset, limit: 20 } },
-    client,
-  });
+  const [users, setUsers] = useState<User[]>([]);
+  const { loading, error, data, fetchMore } = useQuery<UsersData, UsersVars>(
+    USERS_QUERY,
+    {
+      variables: { data: { offset, limit: 20 } },
+      client,
+    },
+  );
 
   useEffect(() => {
     if (data?.users?.nodes) {
@@ -45,12 +72,8 @@ const UserList: React.FC = () => {
   if (loading && users.length === 0) return <p>Carregando...</p>;
   if (error) {
     console.error("Erro ao buscar usuários:", error);
-    return <p>Erro: {(error as Error).message}</p>;
+    return <p>Erro: {(error as ApolloError).message}</p>;
   }
-
-  const handleNavigateToAddUser = () => {
-    navigate("/add-user");
-  };
 
   return (
     <div>
@@ -65,7 +88,7 @@ const UserList: React.FC = () => {
       {data?.users?.pageInfo.hasNextPage && (
         <button onClick={handleLoadMore}>Carregar mais</button>
       )}
-      <button onClick={handleNavigateToAddUser}>Adicionar Usuário</button>
+      <button onClick={() => navigate("/add-user")}>Adicionar Usuário</button>
     </div>
   );
 };
