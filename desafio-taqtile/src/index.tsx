@@ -1,15 +1,17 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
+import { ApolloProvider, client } from "./GraphQl/Apollo/ApolloClient";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import { BrowserRouter as Router } from "react-router-dom";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
-root.render(
+// eslint-disable-next-line react/no-deprecated
+ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ApolloProvider client={client}>
+      <Router>
+        <App />
+      </Router>
+    </ApolloProvider>
   </React.StrictMode>,
+  document.getElementById("root"),
 );
-
-reportWebVitals();

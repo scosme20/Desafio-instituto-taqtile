@@ -1,95 +1,81 @@
 import React, { useState } from "react";
+import { useMutation, gql } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+
+const LOGIN_MUTATION = gql`
+  mutation LoginMutation($data: LoginInput!) {
+    login(data: $data) {
+      token
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
-  };
+  const [login] = useMutation(LOGIN_MUTATION);
+  const navigate = useNavigate();
 
-  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+    try {
+      const { data } = await login({
+        variables: {
+          data: {
+            email,
+            password,
+          },
+        },
+      });
 
-  const validatePassword = (password: string) => {
-    if (password.length < 7) {
-      return false;
-    }
-    const hasDigit = /[0-9]/.test(password);
-    const hasLetter = /[a-zA-Z]/.test(password);
-    return hasDigit && hasLetter;
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setEmailError("");
-    setPasswordError("");
-
-    if (!email) {
-      setEmailError("Email is required");
-    } else if (!validateEmail(email)) {
-      setEmailError("Invalid email format");
-    }
-
-    if (!password) {
-      setPasswordError("Password is required");
-    } else if (!validatePassword(password)) {
-      setPasswordError(
-        "Password must be at least 7 characters long and contain at least one digit and one letter",
-      );
-    }
-
-    if (
-      email &&
-      password &&
-      validateEmail(email) &&
-      validatePassword(password)
-    ) {
-      console.log("Form submitted successfully");
-    } else {
-      console.log("Form has validation errors");
+      const token = data?.login?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+        navigate("/home");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      <h1>Bem Vindo(a) à Tàqtile</h1>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={handleEmailChange}
-            required
-          />
-          {emailError && <p style={{ color: "red" }}>{emailError}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-          {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
-        </div>
-
-        <button type="submit">Login</button>
+        <label>Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <br />
+        <label>Senha</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {error && <p>{error}</p>}
+        <br />
+        <button type="submit" disabled={loading}>
+          {loading ? "Carregando..." : "Entrar"}
+        </button>
       </form>
     </div>
   );
