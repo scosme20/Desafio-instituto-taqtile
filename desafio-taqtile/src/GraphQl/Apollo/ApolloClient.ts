@@ -1,9 +1,4 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  createHttpLink,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
 const httpLink = createHttpLink({
@@ -15,7 +10,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? `${token}` : "",
+      authorization: token ? ` ${token}` : "",
     },
   };
 });
@@ -25,4 +20,4 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export { ApolloProvider, client };
+export default client;

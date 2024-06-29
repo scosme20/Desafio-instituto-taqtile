@@ -1,19 +1,19 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import UserList from "./Components/User/UserList";
+import AddUser from "./Components/User/AddUser";
+import UserDetails from "./Pages/UserDetails";
 import LoginPage from "./Pages/LoginPage";
-import HomePage from "./Pages/HomePage";
-import AddUser from "./Pages/AddUserPage";
-import UserDetails from "./Components/UserDetails";
 
-const App: React.FC = () => {
-  return (
+const App: React.FC = () => (
+  <Router>
     <Routes>
       <Route path="/" element={<LoginPage />} />
-      <Route path="/home" element={<HomePage />} />
+      <Route path="/home" element={<UserList />} />
       <Route path="/add-user" element={<AddUser />} />
-      <Route path="/user/:id" element={<UserDetails />} />
+      <Route path="/user/:userId" element={<UserDetails />} />
     </Routes>
-  );
-};
+  </Router>
+);
 
 export default App;
