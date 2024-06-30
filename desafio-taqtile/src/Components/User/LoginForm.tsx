@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation, ApolloError } from "@apollo/client";
 import { LOGIN_MUTATION } from "../../GraphQl/Mutations/LoginMutation";
 import {
   Form,
@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
   const [login] = useMutation(LOGIN_MUTATION);
@@ -37,8 +37,12 @@ const LoginForm: React.FC = () => {
       localStorage.setItem("token", token);
 
       navigate("/home");
-    } catch (err: any) {
-      setError(err.message as string);
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        setError(err.message);
+      } else {
+        setError("Ocorreu um erro ao fazer login.");
+      }
     } finally {
       setLoading(false);
     }
@@ -51,12 +55,14 @@ const LoginForm: React.FC = () => {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        placeholder="Digite seu email"
       />
       <Label>Senha</Label>
       <Input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        placeholder="Digite sua senha"
       />
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <Button type="submit" disabled={loading}>

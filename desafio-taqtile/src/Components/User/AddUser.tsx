@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
+import React, { useState, useEffect } from "react";
+import { useMutation, ApolloError } from "@apollo/client";
 import { CREATE_USER_MUTATION } from "../../GraphQl/Mutations/AddMutatios";
 import {
   Form,
@@ -13,31 +13,56 @@ import {
 } from "../../Styles/AddUserStyles";
 import { useNavigate, Link } from "react-router-dom";
 
-const AddUserForm: React.FC = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+interface UserInput {
+  name: string;
+  email: string;
+  phone: string;
+  birthDate: string;
+  password: string;
+  role: string;
+}
 
-  const [addUser] = useMutation(CREATE_USER_MUTATION);
+interface CreateUserMutationData {
+  createUser: {
+    id: string;
+    name: string;
+    phone: string;
+    birthDate: string;
+    email: string;
+    role: string;
+  };
+}
+
+const AddUserForm: React.FC = () => {
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [birthDate, setBirthDate] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [role, setRole] = useState<string>("user");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [addUser] = useMutation<CreateUserMutationData, { data: UserInput }>(
+    CREATE_USER_MUTATION,
+  );
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setBirthDate("");
+    setPassword("");
+    setRole("user");
+    setError("");
+    setLoading(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const formattedBirthDate = new Date(birthDate).toISOString();
-    console.log("Submitting:", {
-      name,
-      email,
-      phone,
-      birthDate: formattedBirthDate,
-      password,
-      role,
-    });
     try {
       await addUser({
         variables: {
@@ -52,9 +77,12 @@ const AddUserForm: React.FC = () => {
         },
       });
       navigate("/home");
-    } catch (err: any) {
-      console.error("Error creating user:", err);
-      setError(err.message as string);
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        setError(err.message);
+      } else {
+        console.error("Unexpected error:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -64,11 +92,23 @@ const AddUserForm: React.FC = () => {
     <Form onSubmit={handleSubmit}>
       <Title>Adicionar Usuário</Title>
       <Label>Nome</Label>
-      <Input value={name} onChange={(e) => setName(e.target.value)} />
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Ex: João Silva"
+      />
       <Label>Email</Label>
-      <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <Input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Ex: joao.silva@email.com"
+      />
       <Label>Telefone</Label>
-      <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <Input
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Ex: (11) 91234-5678"
+      />
       <Label>Data de Nascimento</Label>
       <Input
         type="date"
@@ -80,6 +120,7 @@ const AddUserForm: React.FC = () => {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        placeholder="Digite uma senha"
       />
       <Label>Role</Label>
       <Select value={role} onChange={(e) => setRole(e.target.value)}>

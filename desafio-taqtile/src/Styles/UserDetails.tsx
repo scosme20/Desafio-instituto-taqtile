@@ -88,3 +88,17 @@ export const BackButton = styled.button`
     padding: 0 10px;
   }
 `;
+
+export const ButtonWrapper = styled.div`
+  margin-top: 20px;
+  text-align: center;
+
+  p {
+    margin-bottom: 10px;
+  }
+`;
+
+export const Button = styled(BackButton)`
+  background-color: #007bff;
+  margin-top: 10px;
+`;
