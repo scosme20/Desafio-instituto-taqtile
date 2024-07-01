@@ -17,7 +17,6 @@ export const UserListContainer = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 0 auto;
-  text-align: center;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -45,12 +44,13 @@ export const StyledUserList = styled.div`
 export const UserListItem = styled.div`
   padding: 15px 20px;
   border-bottom: 1px solid #ccc;
-  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
   font-family: "Arial", sans-serif;
   animation: ${fadeIn} 0.3s ease-in-out;
+  cursor: pointer;
+  text-align: left;
 
   &:hover {
     background-color: #e9ecef;
@@ -62,20 +62,24 @@ export const UserListItem = styled.div`
 
   @media (max-width: 768px) {
     padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   strong {
     font-weight: bold;
-    display: inline-block;
     min-width: 80px;
     margin-right: 10px;
   }
 
-  .user-info {
+  .userInfo {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .userName {
+    flex: 1;
   }
 `;
 
@@ -92,10 +96,15 @@ export const Button = styled.button`
   margin-top: 20px;
   display: inline-block;
   text-align: center;
+  margin-right: 10px;
 
   &:hover {
     opacity: 0.9;
     transition: opacity 0.3s ease;
+  }
+
+  &:last-child {
+    margin-right: 0;
   }
 
   @media (max-width: 768px) {
@@ -114,40 +123,5 @@ export const ButtonWrapper = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 10px;
-  }
-`;
-
-export const ErrorMessage = styled.p`
-  color: red;
-  margin-top: 8px;
-  font-family: "Arial", sans-serif;
-`;
-
-export const Input = styled.input`
-  border: 1px solid #777777;
-  padding: 10px;
-  font-size: 16px;
-  margin-bottom: 12px;
-  width: 100%;
-  border-radius: 4px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 8px;
-  }
-`;
-
-export const Label = styled.label`
-  font-size: 14px;
-  font-weight: normal;
-  color: #777777;
-  margin-bottom: 8px;
-  display: block;
-  font-family: "Arial", sans-serif;
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-    margin-bottom: 6px;
   }
 `;

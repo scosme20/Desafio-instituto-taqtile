@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { USERS_QUERY } from "../../GraphQl/Queries/UsersQuery";
 import client from "../../GraphQl/Apollo/ApolloClient";
 import UserListLogic from "../../Utils/UserListLogic";
 import { handleError } from "../../Utils/ErrorQueries";
+import LogoutModal from "../../Components/LogoutModal";
 import {
   UserListContainer,
   Title,
@@ -39,19 +40,20 @@ interface UsersQueryVariables {
 const UserList: React.FC = () => {
   const [offset, setOffset] = useState<number>(0);
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // eslint-disable-next-line
   const { loading, error, data, fetchMore } = useQuery<
     UsersQueryData,
     UsersQueryVariables
   >(USERS_QUERY, {
     variables: { data: { offset, limit: 20 } },
     client,
-  });
-
-  useEffect(() => {
-    if (data?.users?.nodes) {
+    onCompleted: (data) => {
       setUsers(data.users.nodes);
-    }
-  }, [data]);
+    },
+  });
 
   const navigate = useNavigate();
 
@@ -61,6 +63,22 @@ const UserList: React.FC = () => {
     fetchMore,
     setUsers,
   );
+
+  const handleOpenLogoutModal = (userId: string) => {
+    setSelectedUserId(userId);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleCloseLogoutModal = () => {
+    setIsLogoutModalOpen(false);
+    setSelectedUserId("");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    client.clearStore();
+    navigate("/");
+  };
 
   if (loading && users.length === 0) return <p>Carregando...</p>;
   if (error) {
@@ -76,19 +94,29 @@ const UserList: React.FC = () => {
             key={user.id}
             onClick={() => navigate(`/user/${user.id}`)}
           >
-            <strong>Nome:</strong> {user.name}, <strong>Email:</strong>{" "}
-            {user.email}
+            <div className="userInfo">
+              <strong>Nome:</strong> {user.name}
+              <br />
+              <strong>Email:</strong> {user.email}
+            </div>
           </UserListItem>
         ))}
       </StyledUserList>
-      {data?.users?.pageInfo.hasNextPage && (
-        <ButtonWrapper>
-          <Button onClick={handleLoadMore}>Carregar mais</Button>
-          <Link to="/add-user">
-            <Button>Adicionar Usuário</Button>
-          </Link>
-        </ButtonWrapper>
-      )}
+      <ButtonWrapper>
+        <Button onClick={handleLoadMore}>Carregar mais</Button>
+        <Button onClick={() => navigate("/add-user")}>Adicionar Usuário</Button>
+        <Button
+          style={{ backgroundColor: "red" }}
+          onClick={() => handleOpenLogoutModal(selectedUserId)}
+        >
+          Logout
+        </Button>
+      </ButtonWrapper>
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onCancel={handleCloseLogoutModal}
+        onConfirm={handleLogout}
+      />
     </UserListContainer>
   );
 };

@@ -9,6 +9,7 @@ import {
   Button,
 } from "../../Styles/LoginPageStyles";
 import { useNavigate } from "react-router-dom";
+import { ForgotPasswordLink, SignUpLink } from "../../Styles/LoginPageStyles";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -68,6 +69,8 @@ const LoginForm: React.FC = () => {
       <Button type="submit" disabled={loading}>
         {loading ? "Carregando..." : "Entrar"}
       </Button>
+      <ForgotPasswordLink>Esqueci a senha</ForgotPasswordLink>
+      <SignUpLink>Criar conta</SignUpLink>
     </Form>
   );
 };
