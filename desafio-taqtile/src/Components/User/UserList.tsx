@@ -87,7 +87,7 @@ const UserList: React.FC = () => {
 
   return (
     <UserListContainer>
-      <Title>Lista de Usuários Tàqtile</Title>
+      <Title>Lista de Integrantes Tàqtile</Title>
       <StyledUserList>
         {users.map((user: User) => (
           <UserListItem
@@ -104,7 +104,9 @@ const UserList: React.FC = () => {
       </StyledUserList>
       <ButtonWrapper>
         <Button onClick={handleLoadMore}>Carregar mais</Button>
-        <Button onClick={() => navigate("/add-user")}>Adicionar Usuário</Button>
+        <Button onClick={() => navigate("/add-user")}>
+          Adicionar Integrante
+        </Button>
         <Button
           style={{ backgroundColor: "red" }}
           onClick={() => handleOpenLogoutModal(selectedUserId)}

@@ -33,31 +33,30 @@ const UserDetails: React.FC = () => {
   });
 
   if (loading) return <LoadingMessage>Loading...</LoadingMessage>;
-  if (error)
-    return <ErrorMessage>Error: {(error as Error).message}</ErrorMessage>;
+  if (error) return <ErrorMessage>Error: {error.message}</ErrorMessage>;
 
   const user = data?.user;
 
   return (
     <Container>
-      <Title>User Details</Title>
+      <Title>Detalhes</Title>
       {user ? (
         <>
           <DetailItem>
-            <strong>Name:</strong> {user.name}
+            <strong>Nome:</strong> {user.name}
           </DetailItem>
           <DetailItem>
             <strong>Email:</strong> {user.email}
           </DetailItem>
           <DetailItem>
-            <strong>Phone:</strong> {user.phone}
+            <strong>Telefone:</strong> {user.phone}
           </DetailItem>
           <DetailItem>
-            <strong>Birth Date:</strong>{" "}
+            <strong>Data de Nascimento:</strong>{" "}
             {new Date(user.birthDate).toLocaleDateString()}
           </DetailItem>
           <DetailItem>
-            <strong>Role:</strong> {user.role}
+            <strong>Função:</strong> {user.role}
           </DetailItem>
         </>
       ) : (

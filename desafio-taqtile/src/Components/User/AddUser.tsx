@@ -124,13 +124,13 @@ const AddUserForm: React.FC = () => {
       />
       <Label>Role</Label>
       <Select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="user">User</option>
-        <option value="adm">Adm</option>
+        <option value="user">Usuário</option>
+        <option value="adm">Administrador</option>
       </Select>
       {loading && <p>Carregando...</p>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <ButtonWrapper>
-        <Button type="submit">Adicionar Usuário</Button>
+        <Button type="submit">Adicionar </Button>
         <Link to="/home">
           <Button type="button">Voltar para Home</Button>
         </Link>

@@ -16,7 +16,6 @@ const UserDetails: React.FC = () => {
 
   return (
     <Container>
-      <Title>Detalhes do Usuário</Title>
       <DetailItem>Nome: {user.name}</DetailItem>
       <DetailItem>Email: {user.email}</DetailItem>
       <DetailItem>Telefone: {user.phone}</DetailItem>
