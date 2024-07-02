@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { USERS_QUERY } from "../../GraphQl/Queries/UsersQuery";
 import client from "../../GraphQl/Apollo/ApolloClient";
 import UserListLogic from "../../Utils/UserListLogic";
@@ -43,8 +43,9 @@ const UserList: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  // eslint-disable-next-line
-  const { loading, error, data, fetchMore } = useQuery<
+  const location = useLocation();
+
+  const { loading, error, data, fetchMore, refetch } = useQuery<
     UsersQueryData,
     UsersQueryVariables
   >(USERS_QUERY, {
@@ -55,8 +56,19 @@ const UserList: React.FC = () => {
     },
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (data) {
+      setUsers(data.users.nodes);
+    }
+  }, [data]);
 
+  useEffect(() => {
+    if (location.state?.refetchUsers) {
+      refetch();
+    }
+  }, [location.state, refetch]);
+
+  const navigate = useNavigate();
   const { handleLoadMore } = UserListLogic(
     offset,
     setOffset,
@@ -87,7 +99,7 @@ const UserList: React.FC = () => {
 
   return (
     <UserListContainer>
-      <Title>Lista de Integrantes Tàqtile</Title>
+      <Title>Lista de Usuários Tàqtile</Title>
       <StyledUserList>
         {users.map((user: User) => (
           <UserListItem

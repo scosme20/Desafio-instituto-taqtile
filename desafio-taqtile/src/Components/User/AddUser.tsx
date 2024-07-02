@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useMutation, ApolloError } from "@apollo/client";
 import { CREATE_USER_MUTATION } from "../../GraphQl/Mutations/AddMutatios";
 import {
@@ -46,21 +46,43 @@ const AddUserForm: React.FC = () => {
   const [addUser] = useMutation<CreateUserMutationData, { data: UserInput }>(
     CREATE_USER_MUTATION,
   );
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setName("");
-    setEmail("");
-    setPhone("");
-    setBirthDate("");
-    setPassword("");
-    setRole("user");
+  const validateInputs = (): boolean => {
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!nameRegex.test(name)) {
+      setError("Nome deve conter apenas letras e espaços.");
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      setError("Email inválido.");
+      return false;
+    }
+    if (!phoneRegex.test(phone)) {
+      setError("Telefone deve seguir o formato (xx) xxxxx-xxxx.");
+      return false;
+    }
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.",
+      );
+      return false;
+    }
     setError("");
-    setLoading(false);
-  }, []);
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateInputs()) return;
+
     setLoading(true);
     const formattedBirthDate = new Date(birthDate).toISOString();
     try {
@@ -76,12 +98,13 @@ const AddUserForm: React.FC = () => {
           },
         },
       });
-      navigate("/home");
+      navigate("/home", { state: { refetchUsers: true } });
     } catch (err) {
       if (err instanceof ApolloError) {
         setError(err.message);
       } else {
         console.error("Unexpected error:", err);
+        setError("Unexpected error occurred.");
       }
     } finally {
       setLoading(false);
@@ -125,7 +148,7 @@ const AddUserForm: React.FC = () => {
       <Label>Role</Label>
       <Select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="user">Usuário</option>
-        <option value="adm">Administrador</option>
+        <option value="admin">Administrador</option>
       </Select>
       {loading && <p>Carregando...</p>}
       {error && <ErrorMessage>{error}</ErrorMessage>}

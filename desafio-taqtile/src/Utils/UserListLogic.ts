@@ -1,10 +1,26 @@
 import { useState } from "react";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface FetchMoreResult {
+  data: {
+    users: {
+      nodes: User[];
+    };
+  };
+}
+
 const UserListLogic = (
   initialOffset: number,
   setOffset: React.Dispatch<React.SetStateAction<number>>,
-  fetchMore: (variables: any) => Promise<any>,
-  setUsers: React.Dispatch<React.SetStateAction<any[]>>,
+  fetchMore: (variables: {
+    variables: { data: { offset: number; limit: number } };
+  }) => Promise<FetchMoreResult>,
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>,
 ) => {
   const [offset, setInternalOffset] = useState(initialOffset);
 
@@ -24,9 +40,9 @@ const UserListLogic = (
       });
 
       if (moreData && moreData.users && moreData.users.nodes) {
-        setUsers((prevUsers: any[]) => [...prevUsers, ...moreData.users.nodes]);
+        setUsers((prevUsers) => [...prevUsers, ...moreData.users.nodes]);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao carregar mais usuários:", error);
       alert("Falha ao carregar mais usuários. Por favor, tente novamente.");
     }
