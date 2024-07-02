@@ -1,13 +1,8 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  createHttpLink,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
 const httpLink = createHttpLink({
-  uri: "https://template-onboarding-node-sjz6wnaoia-uc.a.run.app/graphql",
+  uri: process.env.REACT_APP_GRAPHQL_URI,
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -25,4 +20,4 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export { ApolloProvider, client };
+export default client;
